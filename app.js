@@ -49,7 +49,7 @@ var path = process.cwd();
 
 
 app.get('/', function(req, res, next) {
-  res.render('home');
+  res.render('index');
 });
 app.use('/home', function(req,res,next){
   res.render('home',{user: req.user})
