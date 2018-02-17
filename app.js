@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var api = require('./routes/api');
+var yelp = require('./routes/yelp')
 var mongoose = require('mongoose');
 var session = require('express-session');
 
@@ -62,6 +63,8 @@ app.get('/profile',
   function(req, res){
     res.render('profile', { user: req.user });
   });
+
+app.use('/yelp',yelp);
 
 
 app.route('/auth/github')
