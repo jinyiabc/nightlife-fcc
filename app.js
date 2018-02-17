@@ -11,17 +11,14 @@ var api = require('./routes/api');
 var mongoose = require('mongoose');
 var session = require('express-session');
 
-
+require('dotenv').load();
+var passport = require('./config/passport');
 
 var app = express();
 // connect to mongoDB
 // mongoose.connect('mongodb://localhost/users');
 mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise;
-
-require('dotenv').load();
-var passport = require('./config/passport');
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -72,7 +69,7 @@ app.route('/auth/github')
 
 app.route('/auth/github/callback')
 	.get(passport.authenticate('github', {
-		successRedirect: '/',
+		successRedirect: '/home',
 		failureRedirect: '/login'
 	}));
 
