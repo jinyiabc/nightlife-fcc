@@ -20,12 +20,15 @@ mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise;
 
 require('dotenv').load();
-require('./app/config/passport')(passport);
+var passport = require('./config/passport');
 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+app.use('/public', express.static(process.cwd() + '/public'));
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -39,10 +42,42 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// app.use(express.static(path.join(__dirname, 'public')));
+// Initialize Passport and restore authentication state, if any, from the
+// session.
+app.use(passport.initialize());
+//uses persistent login sessions,
+app.use(passport.session());
+var path = process.cwd();
 
-app.use('/', index);
-app.use('/users', users);
+
+
+app.get('/', function(req, res, next) {
+  res.render('home');
+});
+app.use('/home', function(req,res,next){
+  res.render('home',{user: req.user})
+});
+app.use('/login',function(req,res,next){
+  res.render('login')
+});
+app.get('/profile',
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, res){
+    res.render('profile', { user: req.user });
+  });
+
+
+app.route('/auth/github')
+	.get(passport.authenticate('github'));
+
+app.route('/auth/github/callback')
+	.get(passport.authenticate('github', {
+		successRedirect: '/',
+		failureRedirect: '/login'
+	}));
+
+
+
 // initialize the routes
 app.use('/api',api);
 
@@ -66,3 +101,8 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+function homeAuthenticate(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/homeWithoutlogin')
+}
