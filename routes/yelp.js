@@ -15,7 +15,7 @@ const client = yelp.client(apiKey);
 router.get('/:location/:userId',function(req,res,next){
  // console.log(req.params.location);    // hongkong
   const searchRequest = {
-    term:'Four Barrel Coffee',
+    term:'bar',
     location: req.params.location//'san francisco, ca'
   };
   client.search(searchRequest).then(response => {
@@ -55,7 +55,7 @@ router.get('/:location/:userId',function(req,res,next){
 
                      }
 
-     Pub.findOne({"participants.github.username": req.params.userId}, function(err,user){
+     Pub.findOne({"city": req.params.location}, function(err,user){
        if(err){return err;}
        if(user){
          console.log('The user is registered');
@@ -82,16 +82,14 @@ router.get('/:location',function(req,res,next){
 // console.log(req.params.location.split(',')[1]);    // state
 
   const searchRequest = {
-    term:'Four Barrel Coffee',
+    term:'bar',
     location: req.params.location//'san francisco, ca'
   };
   client.search(searchRequest).then(response => {
-    const firstResult = response.jsonBody.businesses[0];
-    const prettyJson = JSON.stringify(firstResult, null, 4);
+    const ten = response.jsonBody.businesses.slice(10);
+    const prettyJson = JSON.stringify(ten, null, 4);
+    res.send(prettyJson);
 
-    Pub.find({}).then(function(){
-      res.send(prettyJson);
-    });
 
   })
 });
@@ -100,12 +98,12 @@ router.get('/:location',function(req,res,next){
 router.post('/:location',function(req,res,next){
 
   const searchRequest = {
-    term:'Four Barrel Coffee',
+    term:'bar',
     location: req.params.location//'san francisco, ca'
   };
   client.search(searchRequest).then(response => {
     const firstResult = response.jsonBody.businesses[0];
-    const update = response.jsonBody.businesses.slice(0,10);
+    const update = response.jsonBody.businesses.slice(10);
     // const city = req.params.location.split(',')[0];
     const newpubs = []
     for(var i=0; i<10; i++){
