@@ -1,6 +1,8 @@
 const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 const User = require('../models/users');
+const Pub = require('../models/pubs');
+
 const githubAuth = {
 		clientID: process.env.GITHUB_KEY,
 		clientSecret: process.env.GITHUB_SECRET,
@@ -16,30 +18,69 @@ passport.use(new GitHubStrategy(githubAuth,
 	function (token, refreshToken, profile, done) {
 		// console.log(profile);
 		process.nextTick(function () {
-			User.findOne({ 'github.id': profile.id }, function (err, user) {
-				if (err) {
-					return done(err);
-				}
 
-				if (user) {
-					return done(null, user);
-				} else {
-					var newUser = new User();
+// If the user is registered in city of pubs, goto next step
+// If the user is not registered, register in that city of pubs first.
+// Note: User are allowed to login after searching city which step create records in DB alreay.
+// Problem: If the user search another city after login, then may failed to register himself. Need to check ***
+// Solution: Every time GET /:location/:userId , user need to check if registered or not. *** Resolved***
 
-					newUser.github.id = profile.id;
-					newUser.github.username = profile.username;
-					newUser.github.displayName = profile.displayName;
-					newUser.github.publicRepos = profile._json.public_repos;
+      Pub.findOne({"participants.github.id": profile.id},function(err,user){
+         if(err){ return done(err);}
+				 if(user){
+					 console.log('The user is registered');
+					 const test = profile.id, length = user.participants.length;
+					 for( let i = 0; i<length; i++){
+						 if(user.participants[i].github.id === test){
+							 const newUser = user.participants[i];
+							 console.log("registered user is:",JSON.stringify(newUser,null,4));
+							 return done(null, newUser);
+						 }
+					 }
 
-					newUser.save(function (err) {
-						if (err) {
-							throw err;
-						}
+					 // return done(null,user);
+				 } else {
+           console.log('The user is not registered');
+					 const newUser = {"github" : {
+					                             "id" : profile.id,
+					                             "displayName" : profile.displayName,
+					                             "username" : profile.username,
+					                             "publicRepos" : profile._json.public_repos
+					                         }
+					              }
 
-						return done(null, newUser);
-					});
-				}
+					   const query = {"city" : "San Francisco"}
+					                  // "participants.github.username" : "jinyiabc" };   //{"city":city};
+					                  // If array.object.object exists, it works fine.
+					                  // if array.object.object do not exists, odd err:"array is not objects"
+					   const postPubs =
+					                    {
+					                      $push: {
+					                        "participants":{
+					                          $each:  [newUser] ,
+					                          $sort: { score: -1 }
+					                        }
+					                      }
+
+					                    }
+
+					         Pub.updateMany(query,postPubs,{upsert: true}).then(function(){   //upsert: bool - creates the object if it doesn't exist. defaults to false.
+					           // Pub.findOne(query).then(function(result){
+					           //   res.send(result);
+					           // })
+										 return done(null, newUser);
+					         });
+
+				 } // End of if.
+
+
 			});
+
+
+
+
+
+
 		});
 		// return done(null, profile);
 
@@ -56,7 +97,7 @@ passport.use(new GitHubStrategy(githubAuth,
 // and deserialized.
 
 passport.serializeUser(function (user, done) {
-	console.log(user);
+	// console.log(user);
 	done(null, user.github);
 });
 

@@ -12,17 +12,13 @@ const User = new Schema({
 	}
 });
 
+
 const Pub = new Schema({
   pubname: String,
   image_url: String,
+  city: String,
   participants: [User]
 });
 
-const City = new Schema({
-  city: String,
-  pubs: [Pub]
-});
 
-
-
-module.exports = mongoose.model('City', City);
+module.exports = mongoose.model('Pub', Pub);
