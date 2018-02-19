@@ -24,6 +24,9 @@ angular.module('nightlife', ['ngResource'])
   // };
   //
   // $scope.getPoll();
+  // $scope.change() = function(){
+  //   console.log('I am joining...');
+  // }
 
 
   $scope.submit = function(){

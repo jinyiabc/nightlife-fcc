@@ -113,7 +113,8 @@ router.post('/:location',function(req,res,next){
         pubname: update[i].name,
         city: update[i].location.city,
         image_url: update[i].image_url,
-        url:update[i].url
+        url:update[i].url,
+        quantity: 0
         // participants: [{
         //   github:{
         //     id: '1234',
@@ -127,32 +128,10 @@ router.post('/:location',function(req,res,next){
     }
 
 
-// const newarr= []
-// const itemprocess = 0
-// newpubs.forEach(function(pub){
-//         // console.log(JSON.stringify(pub,null,4));
-//         // { pubname: 'Andaz Tokyo Rooftop Bar',
-//         //   city: 'Minato',
-//         //   image_url: 'https://s3-media4.fl.yelpcdn.com/bphoto/8e7GTpz6Nmmn-3zNlf5V-A/o.jpg',
-//         //   url: 'https://www.yelp.com/biz/andaz-tokyo-rooftop-bar-%E6%B8%AF%E5%8C%BA?adjust_creative=9RlztibObCgwU0ZsfIZUFg&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=9RlztibObCgwU0ZsfIZUFg' }
-// const query = {"pubname":pub.pubname};
-// Pub.findOne(query).then(function(result){
-//   itemprocess++;
-//   if(result){
-//     console.log(pub.pubname,'has already registered');
-//   } else{
-//       console.log(pub.pubname,'is registering');
-//       newarr.push(pub);
-//       console.log(newarr);
-//       if(itemprocess === 10) {
-//         Pub.insertMany(newarr).then(function(){
-//           res.send(newpubs).catch(next);
-//         });
-//       }
-//   }
-//
-// });
-// });
+        // { pubname: 'Andaz Tokyo Rooftop Bar',
+        //   city: 'Minato',
+        //   image_url: 'https://s3-media4.fl.yelpcdn.com/bphoto/8e7GTpz6Nmmn-3zNlf5V-A/o.jpg',
+        //   url: 'https://www.yelp.com/biz/andaz-tokyo-rooftop-bar-%E6%B8%AF%E5%8C%BA?adjust_creative=9RlztibObCgwU0ZsfIZUFg&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=9RlztibObCgwU0ZsfIZUFg' }
 
 // async.groupBy(['userId1', 'userId2', 'userId3'], function(userId, callback) {
 //     db.findById(userId, function(err, user) {
@@ -182,25 +161,6 @@ async.groupBy(newpubs, function(pub,cb){
       }
 
 });
-
-
-
-
-    // const query = {"pubname" : update[0].location.city};
-// If there is  city in DB, do nothing; if no city, add to DB.
-     // Pub.findOne(query).then(function(result){
-       // if(result){
-       //   console.log('The city is registered in DB.');
-       //   res.send('The city is registered in DB.');
-       //  } else {
-// If there is no city in DB, insert many to DB.
-          // Pub.insertMany(newarr).then(function(){
-          // // //   // Pub.findOne(query).then(function(result){
-          //     res.send(newpubs);
-          // // //   // })
-          // }).catch(next);
-        // } // End if.
-   // }) // End of findInsert DB function;
 
 
  }) //End of yelp api.

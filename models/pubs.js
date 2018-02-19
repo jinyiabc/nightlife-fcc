@@ -18,6 +18,7 @@ const Pub = new Schema({
   image_url: String,
 	url: String,
   city: String,
+	quantity: Number,
   participants: [User]
 });
 
