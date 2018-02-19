@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html ng-app="nightlife">
+
+	<head>
+		<title>Home Page</title>
+
+		<link href="public/stylesheets/style.css" rel="stylesheet" type="text/css">
+		<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	</head>
+
+	<body>
+    <div class="jumbotron" ng-controller="nightLife">
+      <div class="container">
+        <h1>Plans Tonight?</h1>
+				<span class="glyphicon glyphicon-glass" aria-hidden="true"></span>
+				<span class="glyphicon glyphicon-music" aria-hidden="true"></span>
+				<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
+
+        <p>See which bars are hoppin' tonight and RSVP ahead of time!</p>
+
+
+				<div class="col-lg-6">
+					<form ng-submit="submit()">
+					   <div class="input-group">
+					      <input type="text" class="form-control" ng-model="location" placeholder="Search for...">
+					      <span class="input-group-btn">
+									<input class="btn btn-primary" type="submit" id="submit" value="Go!" />
+					      </span>
+					    </div><!-- /input-group -->
+				  </form>
+			  </div><!-- /.col-lg-6 -->
+
+        <ul class="list-group media-list">
+          <li class="list-group-item thumbnail" ng-repeat="pub in pubs">
+						<div class="media-left">
+            <img width="50" height="50" class="thumbnail media-object" ng-src="{{pub.image_url}}" alt="">
+						</div>
+						<a class="media-body" ng-click="selected.value = $index" ng-href="{{pub.url}}">{{pub.pubname}}</a>
+						<div class="media-right">
+							<h3>
+								<span class="label label-default">{{pub.participants}}</span>
+							</h3>
+            </div>
+					</li>
+
+        </ul>
+      </div>
+    </div>
+
+
+		<script type="text/javascript" src="angular/angular.min.js">
+		</script>
+		<script type="text/javascript" src="angular/angular-resource.min.js">
+		</script>
+		<script type="text/javascript" src="controllers/nightlife-fcc.js"></script>
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+ <!-- Include all compiled plugins (below), or include individual files as needed -->
+ <script src="angular/bootstrap.min.js"></script>
+
+	</body>
+	<footer>
+		<p>
+			This "nightlife-fcc" app is built by @jinyiabc of freecodecamp,
+following the instructions of "Basejump: Build a Voting App | Free Code Camp".<br>
+Github repository: <a href="https://github.com/jinyiabc/nightlife-fcc">jinyiabc/nightlife-fcc</a>
+		</p>
+
+	</footer>
+
+</html>

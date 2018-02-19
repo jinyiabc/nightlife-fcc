@@ -16,6 +16,7 @@ const User = new Schema({
 const Pub = new Schema({
   pubname: String,
   image_url: String,
+	url: String,
   city: String,
   participants: [User]
 });

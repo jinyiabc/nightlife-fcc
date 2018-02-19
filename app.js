@@ -26,6 +26,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use('/public', express.static(process.cwd() + '/public'));
+app.use('/angular', express.static(process.cwd() + '/app/angular'));
+app.use('/controllers', express.static(process.cwd() + '/app/controllers'));
 
 
 // uncomment after placing your favicon in /public
@@ -49,9 +51,13 @@ var path = process.cwd();
 
 
 
-app.get('/', function(req, res, next) {
-  res.render('index');
+// app.get('/', function(req, res, next) {
+//   res.render('index');
+// });
+app.get('/' , function(req, res) {
+  res.sendFile(path + '/public/index.html');
 });
+
 app.use('/home', function(req,res,next){
   res.render('home',{user: req.user})
 });
