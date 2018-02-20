@@ -1,20 +1,51 @@
 const express = require('express');
-const router = express.Router();
+// const router = express.Router();
 const Pub = require('../models/pubs');
 const async = require('async');
 const yelp = require('yelp-fusion');
+var path = process.cwd();
+
 // import concat from 'async/concat';
 // const concat = require('async/concat')
 
 // Place holder for Yelp Fusion's API Key. Grab them
 // from https://www.yelp.com/developers/v3/manage_app
+
+module.exports = function(app, passport){
+
+  function homeAuthenticate(req, res, next) {
+    if (req.isAuthenticated()) { return next(); }
+    res.redirect('/auth/github')
+  }
+
+  app.get('/' ,function(req, res) {
+    res.sendFile(path + '/public/index.html');
+  });
+
+  app.use('/home', function(req,res,next){
+    res.render('home',{user: req.user})
+  });
+  app.use('/login',function(req,res,next){
+    res.render('login')
+  });
+  app.get('/profile',
+    require('connect-ensure-login').ensureLoggedIn(),
+    function(req, res){
+      res.render('profile', { user: req.user });
+  });
+
+
+
+
+
 const apiKey = 'dK5Wn9Updm23II7yWpqbfWJkWNMZQLzGV2Aqha-u86VVOqNCiyXiqrMzFopTRV5sEPdSrLUkQBZyg6PzgWQo0t07626nPiHUGGan8ifW87yY8prr4cAx7F9xvnWFWnYx';
 const client = yelp.client(apiKey);
 
 
 
 // Get a list of clubs around the user.
-router.get('/:location/:userId',function(req,res,next){
+app.route('/yelp/:location/:userId')
+   .get(function(req,res,next){
  // console.log(req.params.location);    // hongkong
   const searchRequest = {
     term:'bar',
@@ -79,7 +110,8 @@ router.get('/:location/:userId',function(req,res,next){
 });
 
 // Get a list of clubs around the location without authorization.
-router.get('/:location',function(req,res,next){
+app.route('/yelp/:location')
+   .get(function(req,res,next){
 // console.log(req.params.location.split(',')[0]);    // city
 // console.log(req.params.location.split(',')[1]);    // state
 
@@ -129,7 +161,7 @@ async.map(newpubs,function(pub,callback){
 });
 
 // Upload pubs if the city was not registered in DB.
-router.post('/:location',function(req,res,next){
+app.route('/yelp/:location').post(function(req,res,next){
 
   const searchRequest = {
     term:'bar',
@@ -201,7 +233,7 @@ async.groupBy(newpubs, function(pub,cb){
 
 // Update participants for Authorized user.
 
-router.put('/:location/:userId',function(req,res,next){
+app.route('/yelp/:location/:userId').put(function(req,res,next){
 
 
 const city = req.params.location.split(',')[0];
@@ -231,7 +263,7 @@ const postPubs =
 
 
 // update registered user participation.
-router.put('/:location',function(req,res,next){
+app.route('/yelp/:location').put(homeAuthenticate,function(req,res,next){
 const pubname = req.body.pubname;
 const participants = req.body.participants;
 const username = req.user.username;
@@ -279,10 +311,20 @@ Pub.updateOne(query,update,{upsert:true}).then(function(){
   }).catch(next);
 });
 
-
-
 });
 
 
+app.route('/auth/github')
+  .get(passport.authenticate('github'));
 
-module.exports = router;
+app.route('/auth/github/callback')
+  .get(passport.authenticate('github', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+  }));
+
+
+
+};
+
+// module.exports = router;

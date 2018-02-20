@@ -8,7 +8,8 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var api = require('./routes/api');
-var yelp = require('./routes/yelp')
+// var yelp = require('./routes/yelp')
+var routes = require('./routes/yelp');
 var mongoose = require('mongoose');
 var session = require('express-session');
 
@@ -54,38 +55,39 @@ var path = process.cwd();
 // app.get('/', function(req, res, next) {
 //   res.render('index');
 // });
-app.get('/' ,function(req, res) {
-  res.sendFile(path + '/public/index.html');
-});
-
-app.use('/home', function(req,res,next){
-  res.render('home',{user: req.user})
-});
-app.use('/login',function(req,res,next){
-  res.render('login')
-});
-app.get('/profile',
-  require('connect-ensure-login').ensureLoggedIn(),
-  function(req, res){
-    res.render('profile', { user: req.user });
-  });
+// app.get('/' ,function(req, res) {
+//   res.sendFile(path + '/public/index.html');
+// });
+//
+// app.use('/home', function(req,res,next){
+//   res.render('home',{user: req.user})
+// });
+// app.use('/login',function(req,res,next){
+//   res.render('login')
+// });
+// app.get('/profile',
+//   require('connect-ensure-login').ensureLoggedIn(),
+//   function(req, res){
+//     res.render('profile', { user: req.user });
+//   });
 
 // app.use('/yelp',yelp);
+routes(app,passport);
 
 
-app.route('/auth/github')
-	.get(passport.authenticate('github'));
+// app.route('/auth/github')
+// 	.get(passport.authenticate('github'));
+//
+// app.route('/auth/github/callback')
+// 	.get(passport.authenticate('github', {
+// 		successRedirect: '/',
+// 		failureRedirect: '/login'
+// 	}));
 
-app.route('/auth/github/callback')
-	.get(passport.authenticate('github', {
-		successRedirect: '/',
-		failureRedirect: '/login'
-	}));
 
-
-
-// initialize the routes
-app.use('/yelp',yelp);
+//
+// // initialize the routes
+// app.use('/yelp',yelp);
 
 
 // catch 404 and forward to error handler
