@@ -9,7 +9,8 @@ const User = new Schema({
 		displayName: String,
 		username: String,
     publicRepos: Number
-	}
+	},
+  isJoin: Number      // 0 is false, 1 is ture
 });
 
 

@@ -54,7 +54,7 @@ var path = process.cwd();
 // app.get('/', function(req, res, next) {
 //   res.render('index');
 // });
-app.get('/' , function(req, res) {
+app.get('/' ,function(req, res) {
   res.sendFile(path + '/public/index.html');
 });
 
@@ -70,7 +70,7 @@ app.get('/profile',
     res.render('profile', { user: req.user });
   });
 
-app.use('/yelp',yelp);
+// app.use('/yelp',yelp);
 
 
 app.route('/auth/github')
@@ -78,14 +78,14 @@ app.route('/auth/github')
 
 app.route('/auth/github/callback')
 	.get(passport.authenticate('github', {
-		successRedirect: '/home',
+		successRedirect: '/',
 		failureRedirect: '/login'
 	}));
 
 
 
 // initialize the routes
-app.use('/api',api);
+app.use('/yelp',yelp);
 
 
 // catch 404 and forward to error handler
@@ -110,5 +110,5 @@ module.exports = app;
 
 function homeAuthenticate(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/homeWithoutlogin')
+  res.redirect('/login')
 }

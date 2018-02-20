@@ -21,6 +21,8 @@
 
         <p>See which bars are hoppin' tonight and RSVP ahead of time!</p>
 
+				<!-- <a href="/auth/github">Log In with Github</a> -->
+
 
 				<div class="col-lg-6">
 					<form ng-submit="submit()">
@@ -38,25 +40,17 @@
 						<div class="media-left">
             <img width="50" height="50" class="thumbnail media-object" ng-src="{{pub.image_url}}" alt="">
 						</div>
-						<a class="media-body" ng-click="selected.value = $index" ng-href="{{pub.url}}">{{pub.pubname}}</a>
+						<a class="media-body"  ng-href="{{pub.url}}">{{pub.pubname}}</a>
 
 						<div class="input-group">
+							<!-- <a href="/auth/github">Login with github</a> -->
+							<a  ng-click="change($index)">
 						      <span class="input-group-addon">
-						        <input type="checkbox" aria-label="...">{{pub.quantity}}
+										{{pub.quantity}} GOING
 						      </span>
+							</a>
 
 					  </div><!-- /input-group -->
-							<!-- <div class="media-right">
-								<h3>
-					      <span class="label label-default">
-					        <input class="btn btn-primary" type="checkbox" aria-label="...">{{pub.quantity}}
-					      </span>
-								</h3>
-					    </div><!-- /input-group --> -->
-
-							<!-- <h3>
-								<span class="label label-default">{{pub.quantity}}</span>
-							</h3> -->
 					</li>
 
         </ul>

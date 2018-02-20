@@ -60,7 +60,7 @@ router.get('/:location/:userId',function(req,res,next){
      Pub.findOne({"city": req.params.location}, function(err,user){
        if(err){return err;}
        if(user){
-         console.log('The user is registered');
+         console.log('The user is registered..');
          console.log(JSON.stringify(user,null,4));
          res.send(user);
        } else {  // Insertmany if the user is not registered
@@ -87,13 +87,45 @@ router.get('/:location',function(req,res,next){
     term:'bar',
     location: req.params.location//'san francisco, ca'
   };
-  client.search(searchRequest).then(response => {
-    const ten = response.jsonBody.businesses.slice(10);
-    const prettyJson = JSON.stringify(ten, null, 4);
-    res.send(prettyJson);
+client.search(searchRequest).then(response => {
+const update = response.jsonBody.businesses.slice(10);
+const newpubs = []
+for(var i=0; i<10; i++){
+    newpubs.push({
+    pubname: update[i].name,
+    city: update[i].location.city,
+    image_url: update[i].image_url,
+    url:update[i].url,
+    quantity: 0
+})
+}  // end of for loop.
+// async.groupBy(newpubs, function(pub,cb){
+//   Pub.findOne({"pubname":pub.pubname}, function(err,pub){
+//     if(err) return cb(err);
+//     return cb(null,pub)
+//   });
+// }, function(err,result){
+//       // console.log(JSON.stringify(result,null,4));
+//       res.send(result);
+//
+// });
+
+async.map(newpubs,function(pub,callback){
+  Pub.findOne({"pubname":pub.pubname},function(err,pubInDB){
+  if(err) return console.err(err);
+  callback(null,pubInDB);
+});
+},function(err,results){
+  console.log(JSON.stringify(results,null,4));
+  res.send(results);
+});
 
 
-  })
+
+
+
+
+}) // end of yelp.
 });
 
 // Upload pubs if the city was not registered in DB.
@@ -149,7 +181,7 @@ async.groupBy(newpubs, function(pub,cb){
     return cb(null,pub)
   });
 }, function(err,result){
-      // console.log(JSON.stringify(result,null,4));
+      console.log(JSON.stringify(result,null,4));
       if( typeof result.null == "undefined"){
         console.log('All pubs has been registered');
         res.send(newpubs)
@@ -194,6 +226,60 @@ const postPubs =
     // }
 
 // })  // Client Search
+
+});
+
+
+// update registered user participation.
+router.put('/:location',function(req,res,next){
+const pubname = req.body.pubname;
+const participants = req.body.participants;
+const username = req.user.username;
+let newValue;
+let newQty = 0;
+console.log('pubname',pubname);   //Corner Stop Bar
+console.log('sessioned user:',username);
+/*sessioned user: { id: '33644601',
+  displayName: 'Alex J.Y.',
+  username: 'jinyiabc',
+  publicRepos: 22 }*/
+
+for(let i=0; i <participants.length;i++){
+  newQty = newQty + participants[i].isJoin;
+}
+console.log('old quantity:',newQty);
+for(let i=0; i <participants.length;i++){
+  if (participants[i].github.username == username){
+    const isJoin = participants[i].isJoin;
+    console.log('old value:',isJoin);
+    if(isJoin == 0) {
+      newValue = 1 ;
+      newQty = newQty +1;
+    } else {
+      newValue = 0;
+      newQty = newQty -1;
+    }
+  }
+}
+
+console.log('new value:',newValue);
+console.log('new quantity:',newQty);
+
+
+const query = {"pubname":pubname,"participants.github.username":username};
+const update = {$set:{'participants.$.isJoin': newValue,'quantity':newQty}
+                // $set:{'quantity':newQty}
+              }
+
+
+Pub.updateOne(query,update,{upsert:true}).then(function(){
+  Pub.findOne(query).then(function(pub){
+    console.log(JSON.stringify(pub,null,4));
+    res.send(pub)
+  }).catch(next);
+});
+
+
 
 });
 

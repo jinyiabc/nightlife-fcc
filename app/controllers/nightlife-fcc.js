@@ -5,53 +5,51 @@ angular.module('nightlife', ['ngResource'])
 
 .controller('nightLife', ['$scope','$http','$resource',function ($scope,$http,$resource) {
 
-  // Add index to each polls.
-  // $scope.selected = {value: 0};
+  $scope.count = 0;
+
+  $scope.change = function(index){
+    $scope.count += 1;
+    // console.log($scope.count); // 1,2,3,4...
+    // console.log(pubname);    //Bar Buonasera
+    console.log(index);
+    // $scope.getpubs();
+    var pubname =  $scope.pubs[index].pubname;
+    var participants = $scope.pubs[index].participants;
 
 
-  // $scope.getPoll = function(){
-  //   $http.get('/api/polls').then(function(response){
-  //     var length = response.data.length;
-  //     $scope.polls = []
-  //     for( var i =0 ; i< length; i++){
-  //       var length1 = response.data[i].polls.length
-  //       for( var j=0 ; j<length1; j++){
-  //         $scope.polls.push(response.data[i].polls[j]);
-  //       }
-  //     }
-  //     console.log($scope.polls)
-  //       });
-  // };
-  //
-  // $scope.getPoll();
-  // $scope.change() = function(){
-  //   console.log('I am joining...');
-  // }
+    var location = $scope.location;
+    $http.put(`/yelp/${location}`,{pubname:pubname,participants:participants}).then(function(){
+      $scope.getpubs();
+    });
+
+  };
+
+  $scope.getpubs = function(){
+    var location = $scope.location;
+
+    $http.get(`/yelp/${location}`).then(function(response){
+      // console.log('GET pubs from DB:',response.data);
+      $scope.pubs = response.data;
+
+      // var temp1 = $scope.pubs[0].participants
+      // console.log(temp1[0].github);   // {id: "33644601", displayName: "Alex J.Y.", username: "jinyiabc", publicRepos: 22}
+
+    })
+  }
 
 
   $scope.submit = function(){
 
     var location = $scope.location;
-    console.log(location);
+    // console.log(location); // los Anges
 
-    // var array = $scope.options.split('\n')
-    // var newArray = []
-    // for( var i=0; i<array.length; i++){
-    //   newArray.push({"name":array[i],"selected":0});
-    // }
-    // console.log(newArray);
-    // var newpoll = {
-    // 	"title": $scope.title,
-    // 	"options":newArray
-    // }
     $http.post(`/yelp/${location}`).then(function(response){
-    console.log(response.data);
-    $scope.pubs = response.data
-    // $scope.index = response.data.polls.length - 1;
-    // window.location.href = '/'+ $scope.index;
+    // console.log('POST pubs to DB:',response.data);
+    // $scope.pubs = response.data;
+    $scope.getpubs();
+    }); // End of POST
 
 
-    });
   };
 
 

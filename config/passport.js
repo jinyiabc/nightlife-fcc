@@ -25,10 +25,27 @@ passport.use(new GitHubStrategy(githubAuth,
 // Problem: If the user search another city after login, then may failed to register himself. Need to check ***
 // Solution: Every time GET /:location/:userId , user need to check if registered or not. *** Resolved***
 
-      Pub.findOne({"participants.github.id": profile.id},function(err,user){
+const newUser = {"github" : {
+														"id" : profile.id,
+														"displayName" : profile.displayName,
+														"username" : profile.username,
+														"publicRepos" : profile._json.public_repos
+												},
+												"isJoin": 0
+											}
+
+// If user  log in , he/she will register in all pubs in DB only .
+    Pub.updateMany({"participants.github.username":{$ne:profile.username}},
+			{$push:{participants: newUser}},function(err,result){
+			if(err) return console.err(err);
+		  console.log(result);   // { n: 5, nModified: 5, ok: 1 }
+			return done(null,newUser)
+		});
+
+/*      Pub.findOne({"participants.github.id": profile.id},function(err,user){
          if(err){ return done(err);}
 				 if(user){
-					 console.log('The user is registered');
+					 console.log('The user is registered@passport');
 					 const test = profile.id, length = user.participants.length;
 					 for( let i = 0; i<length; i++){
 						 if(user.participants[i].github.id === test){
@@ -40,7 +57,7 @@ passport.use(new GitHubStrategy(githubAuth,
 
 					 // return done(null,user);
 				 } else {
-           console.log('The user is not registered');
+           console.log('The user is not registered@passport');
 					 const newUser = {"github" : {
 					                             "id" : profile.id,
 					                             "displayName" : profile.displayName,
@@ -74,7 +91,7 @@ passport.use(new GitHubStrategy(githubAuth,
 				 } // End of if.
 
 
-			});
+			});*/
 
 
 
