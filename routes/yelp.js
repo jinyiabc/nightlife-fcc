@@ -15,7 +15,7 @@ module.exports = function(app, passport){
 
   function homeAuthenticate(req, res, next) {
     if (req.isAuthenticated()) { return next(); }
-    res.redirect('/login')
+    res.redirect('/');
   }
 
   app.get('/' ,function(req, res) {
@@ -42,8 +42,11 @@ module.exports = function(app, passport){
   }
   });
 
-  app.get('/session',homeAuthenticate,function(req,res,next){
+  app.get('/session',function(req,res,next){
     const location = {location:req.session.location}
+    const user = {user:req.user}
+    console.log('session location:',location);
+    console.log('session user',req.user);
     res.send(location);
   });
 
@@ -173,9 +176,9 @@ async.map(newpubs,function(pub,callback){
 
 // Upload pubs if the city was not registered in DB.
 app.route('/yelp/:location').post(function(req,res,next){
-
+  console.log(JSON.stringify(req.user,null,4));
   req.session.location = req.params.location;
-  // console.log('Session location Add from POST :',req.session.location);
+  console.log('Session location Add from POST :',req.session.location);
 
   const searchRequest = {
     term:'bar',
@@ -244,6 +247,63 @@ async.groupBy(newpubs, function(pub,cb){
  }) //End of yelp api.
 });
 
+// Upload pubs if the city was not registered in DB.
+app.route('/yelp/:location/loggedIn').post(function(req,res,next){
+
+  req.session.location = req.params.location;
+  console.log('Session location Add from loggedIn POST :',req.session.location);
+
+  const searchRequest = {
+    term:'bar',
+    location: req.params.location//'san francisco, ca'
+  };
+  client.search(searchRequest).then(response => {
+    const firstResult = response.jsonBody.businesses[0];
+    const update = response.jsonBody.businesses.slice(10);
+    // const city = req.params.location.split(',')[0];
+    const newpubs = []
+    for(var i=0; i<10; i++){
+      newpubs.push({
+        pubname: update[i].name,
+        city: update[i].location.city,
+        image_url: update[i].image_url,
+        url:update[i].url,
+        quantity: 0,
+        participants: [{
+          github:{
+            id: req.user.id,
+            displayName: req.user.displayName,
+            username:req.user.username,
+            publicRepos: req.user.publicRepos
+          },
+          isJoin: 0
+        }]
+      })
+
+    }
+
+async.groupBy(newpubs, function(pub,cb){
+  Pub.findOne({"pubname":pub.pubname}, function(err,pub){
+    if(err) return cb(err);
+    return cb(null,pub)
+  });
+}, function(err,result){
+      console.log(JSON.stringify(result,null,4));
+      if( typeof result.null == "undefined"){
+        console.log('All pubs has been registered');
+        res.send(newpubs)
+      } else {
+        console.log('Registering new pubs...');
+      Pub.insertMany(result.null).then(function(){
+          res.send(newpubs);
+      }).catch(next);
+      }
+
+});
+
+
+ }) //End of yelp api.
+});
 
 // Update participants for Authorized user.
 

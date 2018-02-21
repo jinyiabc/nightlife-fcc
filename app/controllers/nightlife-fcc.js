@@ -31,17 +31,18 @@ angular.module('nightlife', ['ngResource'])
 
 // Get pub information from DB.
   $scope.getpubs = function(){
+
     // Get location from session.
     $http.get('/session').then(function(response){
       console.log(response.data);
-      $scope.location = response.data.location;
+      // $scope.location = response.data.location;
     // Get pubs from DB or Yelp with Location.
-    var location = $scope.location;
+    var location = response.data.location;
     $http.get(`/yelp/${location}`).then(function(response){
       // console.log('GET pubs from DB:',response.data);
       $scope.pubs = response.data;
       // Check for authentication
-           $scope.isAuthenticated = true;
+           $scope.isAuthenticated = false;
            $http.get('/isAuth').then(function(response){
              console.log(response.data);
              $scope.isAuthenticated = response.data.withCredentials;
@@ -58,7 +59,7 @@ $scope.getpubs();
 // Reload pubs after authentication by retrieving data from req.session.
 $scope.windowReload = function(){
 
-  var landingUrl = "http://" + $window.location.host + "/auth/github";
+  var landingUrl = "http://" + $window.location.host + "/login";
   $window.location.href = landingUrl;
 
 };
@@ -69,12 +70,22 @@ $scope.windowReload = function(){
 
     var location = $scope.location;
     // console.log(location); // los Anges
-
-    $http.post(`/yelp/${location}`).then(function(response){
-    // console.log('POST pubs to DB:',response.data);
-    // $scope.pubs = response.data;
-    $scope.getpubs();
-    }); // End of POST
+    $http.get('/isAuth').then(function(response){
+    console.log('Submit authentication:',response.data.withCredentials);  // ok!
+    if(!response.data.withCredentials){
+        $http.post(`/yelp/${location}`).then(function(response){
+        // console.log('POST pubs to DB:',response.data);
+        // $scope.pubs = response.data;
+        $scope.getpubs();
+        }); // End of POST
+    } else {
+      $http.post(`/yelp/${location}/loggedIn`).then(function(response){
+      // console.log('POST pubs to DB:',response.data);
+      // $scope.pubs = response.data;
+      $scope.getpubs();
+      }); // End of POST
+    }
+    });
 
 
   };
