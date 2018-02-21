@@ -4,6 +4,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+// var cors = require('cors')
+
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -39,9 +41,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
   secret: 'keyboard cat',
-  resave: true,
+  resave: false,
   saveUninitialized: true
 }));
+// app.use(cors())   // Simple Usage (Enable All CORS Requests)
+app.use(function(req,res,next){
+  if(!req.session.location){
+    req.session.location = '';
+  }
+  // console.log(req.session);
+  // if(req.params.location){
+  //   req.session.location = req.params.location;
+  // }
+
+  next();
+})
 
 // Initialize Passport and restore authentication state, if any, from the
 // session.

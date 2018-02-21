@@ -15,7 +15,7 @@ module.exports = function(app, passport){
 
   function homeAuthenticate(req, res, next) {
     if (req.isAuthenticated()) { return next(); }
-    res.redirect('/auth/github')
+    res.redirect('/login')
   }
 
   app.get('/' ,function(req, res) {
@@ -34,7 +34,18 @@ module.exports = function(app, passport){
       res.render('profile', { user: req.user });
   });
 
+  app.get('/isAuth',function(req,res){
+    if(req.isAuthenticated()){
+    res.send({withCredentials: true});
+  } else {
+    res.send({withCredentials: false});
+  }
+  });
 
+  app.get('/session',homeAuthenticate,function(req,res,next){
+    const location = {location:req.session.location}
+    res.send(location);
+  });
 
 
 
@@ -92,7 +103,7 @@ app.route('/yelp/:location/:userId')
        if(err){return err;}
        if(user){
          console.log('The user is registered..');
-         console.log(JSON.stringify(user,null,4));
+         // console.log(JSON.stringify(user,null,4));
          res.send(user);
        } else {  // Insertmany if the user is not registered
          console.log('The user is not registered');
@@ -148,7 +159,7 @@ async.map(newpubs,function(pub,callback){
   callback(null,pubInDB);
 });
 },function(err,results){
-  console.log(JSON.stringify(results,null,4));
+  // console.log(JSON.stringify(results,null,4));
   res.send(results);
 });
 
@@ -162,6 +173,9 @@ async.map(newpubs,function(pub,callback){
 
 // Upload pubs if the city was not registered in DB.
 app.route('/yelp/:location').post(function(req,res,next){
+
+  req.session.location = req.params.location;
+  // console.log('Session location Add from POST :',req.session.location);
 
   const searchRequest = {
     term:'bar',

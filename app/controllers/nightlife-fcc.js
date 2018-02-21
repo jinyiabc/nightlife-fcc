@@ -3,11 +3,12 @@
 (function () {
 angular.module('nightlife', ['ngResource'])
 
-.controller('nightLife', ['$scope','$http','$resource',function ($scope,$http,$resource) {
+.controller('nightLife', ['$scope','$http','$resource','$location','$window',function ($scope,$http,$resource,$location,$window) {
 
   $scope.count = 0;
 
   $scope.change = function(index){
+
     $scope.count += 1;
     // console.log($scope.count); // 1,2,3,4...
     // console.log(pubname);    //Bar Buonasera
@@ -15,29 +16,55 @@ angular.module('nightlife', ['ngResource'])
     // $scope.getpubs();
     var pubname =  $scope.pubs[index].pubname;
     var participants = $scope.pubs[index].participants;
-
-
     var location = $scope.location;
-    $http.put(`/yelp/${location}`,{pubname:pubname,participants:participants}).then(function(){
-      $scope.getpubs();
-    });
 
+    if($scope.isAuthenticated){
+
+
+        $http.put(`/yelp/${location}`,{pubname:pubname,participants:participants}).then(function(){
+          $scope.getpubs();
+        });
+    } else {
+       $scope.windowReload();
+    }
   };
 
+// Get pub information from DB.
   $scope.getpubs = function(){
+    // Get location from session.
+    $http.get('/session').then(function(response){
+      console.log(response.data);
+      $scope.location = response.data.location;
+    // Get pubs from DB or Yelp with Location.
     var location = $scope.location;
-
     $http.get(`/yelp/${location}`).then(function(response){
       // console.log('GET pubs from DB:',response.data);
       $scope.pubs = response.data;
-
-      // var temp1 = $scope.pubs[0].participants
-      // console.log(temp1[0].github);   // {id: "33644601", displayName: "Alex J.Y.", username: "jinyiabc", publicRepos: 22}
+      // Check for authentication
+           $scope.isAuthenticated = true;
+           $http.get('/isAuth').then(function(response){
+             console.log(response.data);
+             $scope.isAuthenticated = response.data.withCredentials;
+             // console.log($scope.isAuthenticated);
+           });
 
     })
+
+   })
   }
 
+$scope.getpubs();
 
+// Reload pubs after authentication by retrieving data from req.session.
+$scope.windowReload = function(){
+
+  var landingUrl = "http://" + $window.location.host + "/auth/github";
+  $window.location.href = landingUrl;
+
+};
+
+
+// Submit post to server.
   $scope.submit = function(){
 
     var location = $scope.location;
