@@ -37,6 +37,7 @@ angular.module('nightlife', ['ngResource'])
       console.log(response.data);
       // $scope.location = response.data.location;
     // Get pubs from DB or Yelp with Location.
+    $scope.location = response.data.location
     var location = response.data.location;
     $http.get(`/yelp/${location}`).then(function(response){
       // console.log('GET pubs from DB:',response.data);
@@ -52,6 +53,7 @@ angular.module('nightlife', ['ngResource'])
     })
 
    })
+
   }
 
 $scope.getpubs();

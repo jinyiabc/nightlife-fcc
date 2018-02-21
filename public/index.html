@@ -11,6 +11,7 @@
 
 	</head>
 
+
 	<body>
     <div class="jumbotron" ng-controller="nightLife">
       <div class="container">
@@ -24,12 +25,12 @@
 				<!-- <a href="/auth/github">Log In with Github</a> -->
 
 
-				<div class="col-lg-6">
+				<div class="">
 					<form ng-submit="submit()">
 					   <div class="input-group">
 					      <input type="text" class="form-control" ng-model="location" placeholder="Search for...">
 					      <span class="input-group-btn">
-									<input class="btn btn-primary" type="submit" id="submit" value="Go!" />
+									<input class="btn btn-info " type="submit" id="submit" value="Go!" />
 					      </span>
 					    </div><!-- /input-group -->
 				  </form>
@@ -39,14 +40,14 @@
         <ul class="list-group media-list">
           <li class="list-group-item thumbnail" ng-repeat="pub in pubs">
 						<div class="media-left">
-            <img width="50" height="50" class="thumbnail media-object" ng-src="{{pub.image_url}}" alt="">
+            <img width="100" height="100" class="thumbnail media-object" ng-src="{{pub.image_url}}" alt="">
 						</div>
-						<a class="media-body"  ng-href="{{pub.url}}">{{pub.pubname}}</a>
 
-						<div class="input-group">
+						<div class="media-right">
+						<a target="_blank" ng-href="{{pub.url}}"><h3>{{pub.pubname}}</h3></a>
 							<!-- <a href="/auth/github">Login with github</a> -->
-							<a  ng-click="change($index)">
-						      <span class="input-group-addon">
+							<a  class="btn btn-info"  ng-click="change($index)">
+						      <span >
 										{{pub.quantity}} GOING
 						      </span>
 							</a>
